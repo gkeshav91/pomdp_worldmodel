@@ -1,142 +1,82 @@
-MDP & POMDP Learning Experiments
+# MDP & POMDP Learning Experiments
 
 This repository contains implementations and experimental results for Markov Decision Processes (MDP) and Partially Observable Markov Decision Processes (POMDP). The experiments focus on state abstraction, error rates relative to sample size/depth, and the sample complexity involved in history-based extraction in POMDPs.
 
-1. MDP Experiments (Richens et al.)
+## 1. MDP Experiments (Richens et al.)
 
-These experiments replicate and extend the work found in Richens et al. (arXiv:2506.01622). We evaluate the error rates of the learned model against training sample size and goal depth.
+These experiments replicate and extend the work found in [Richens et al. (arXiv:2506.01622)](https://arxiv.org/abs/2506.01622). We evaluate the error rates of the learned model against training sample size and goal depth.
 
-Results
+### Results
 
-Figure 1: MDP Performance Analysis
+**Figure 1: MDP Performance Analysis**
 
-A. Error vs. Training Samples
+![Richens Experiments Results](results/richens_experiments_results.png)
 
-Fixed Depth = 50
+#### A. Error vs. Training Samples
+*Fixed Depth = 50*
 
 As the number of training samples ($N$) increases, the error rate decreases significantly, plateauing around $N=5000$.
 
-Samples ($N$)
+| Samples ($N$) | Error ($\pm$ std) |
+| :--- | :--- |
+| 500 | 0.1118 $\pm$ 0.0091 |
+| 1000 | 0.0853 $\pm$ 0.0141 |
+| 2000 | 0.0552 $\pm$ 0.0075 |
+| 3000 | 0.0532 $\pm$ 0.0066 |
+| 5000 | 0.0388 $\pm$ 0.0044 |
+| 7000 | 0.0383 $\pm$ 0.0084 |
+| 10000 | 0.0307 $\pm$ 0.0046 |
 
-Error ($\pm$ std)
-
-500
-
-0.1118 $\pm$ 0.0091
-
-1000
-
-0.0853 $\pm$ 0.0141
-
-2000
-
-0.0552 $\pm$ 0.0075
-
-3000
-
-0.0532 $\pm$ 0.0066
-
-5000
-
-0.0388 $\pm$ 0.0044
-
-7000
-
-0.0383 $\pm$ 0.0084
-
-10000
-
-0.0307 $\pm$ 0.0046
-
-B. Error vs. Goal Depth
-
-Fixed Samples ($N$) = 5000
+#### B. Error vs. Goal Depth
+*Fixed Samples ($N$) = 5000*
 
 The model demonstrates robustness to increasing goal depth, maintaining low error rates even as depth extends to 400.
 
-Depth
+| Depth | Error ($\pm$ std) |
+| :--- | :--- |
+| 10 | 0.0580 $\pm$ 0.0019 |
+| 20 | 0.0385 $\pm$ 0.0094 |
+| 50 | 0.0440 $\pm$ 0.0030 |
+| 75 | 0.0469 $\pm$ 0.0037 |
+| 100 | 0.0319 $\pm$ 0.0062 |
+| 200 | 0.0380 $\pm$ 0.0100 |
+| 400 | 0.0421 $\pm$ 0.0009 |
 
-Error ($\pm$ std)
+---
 
-10
-
-0.0580 $\pm$ 0.0019
-
-20
-
-0.0385 $\pm$ 0.0094
-
-50
-
-0.0440 $\pm$ 0.0030
-
-75
-
-0.0469 $\pm$ 0.0037
-
-100
-
-0.0319 $\pm$ 0.0062
-
-200
-
-0.0380 $\pm$ 0.0100
-
-400
-
-0.0421 $\pm$ 0.0009
-
-2. POMDP Experiments
+## 2. POMDP Experiments
 
 These experiments investigate the difficulty of extracting transition probabilities in a POMDP setting using histories of varying lengths ($h$). We measure the "Sample Complexity"—the number of total episodes required to achieve a valid trial for a specific history.
 
-Results
+### Results
 
-Figure 2: POMDP Extraction & Sample Complexity
+**Figure 2: POMDP Extraction & Sample Complexity**
 
-Sample Complexity Analysis
+![POMDP Extraction Results](results/pomdp_extraction_results.png)
+
+### Sample Complexity Analysis
 
 The defining challenge in POMDP extraction is the rarity of specific histories. We define $\rho(h)$ as the probability of encountering history $h$.
 
-History Length
+| History Length | Est. $\rho(h)$ | Sample Complexity Multiplier |
+| :--- | :--- | :--- |
+| **0** (Empty) | ~1.000 | **1.0x** episodes needed |
+| **1** | ~0.406 | **2.5x** episodes needed |
+| **2** | ~0.109 | **11.2x** episodes needed |
 
-Est. $\rho(h)$
+### Key Insights
+1.  **Inverse Relationship:** Each 'valid trial' requires $1/\rho(h)$ episodes on average.
+2.  **History Decay:** As history length increases, $\rho(h)$ drops, causing the required number of episodes to spike.
+3.  **Episodic Necessity:** Without episodic resets, reliable extraction of these statistics is impossible.
 
-Sample Complexity Multiplier
-
-0 (Empty)
-
-~1.000
-
-1.0x episodes needed
-
-1
-
-~0.406
-
-2.5x episodes needed
-
-2
-
-~0.109
-
-11.2x episodes needed
-
-Key Insights
-
-Inverse Relationship: Each 'valid trial' requires $1/\rho(h)$ episodes on average.
-
-History Decay: As history length increases, $\rho(h)$ drops, causing the required number of episodes to spike.
-
-Episodic Necessity: Without episodic resets, reliable extraction of these statistics is impossible.
-
-Detailed Trial Data
+### Detailed Trial Data
 
 The following logs detail the extraction testing across different history lengths and trial counts.
 
 <details>
 <summary>Click to view full experiment logs</summary>
 
+```text
 Testing extraction with different history lengths and trial counts...
 
 History (length=0): []
@@ -170,10 +110,3 @@ History (length=2): [(0, 0), (1, 1)]
     n= 20: p̂=0.550, error=0.078, attempts= 142, ρ(h)≈0.141
     n= 50: p̂=0.480, error=0.008, attempts= 268, ρ(h)≈0.187
     n=100: p̂=0.580, error=0.108, attempts= 772, ρ(h)≈0.130
-
-
-</details>
-
-References
-
-Richens et al. (2025). Title of the paper. arXiv preprint arXiv:2506.01622
